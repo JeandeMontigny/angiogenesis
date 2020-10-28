@@ -1,0 +1,23 @@
+[simulation]
+run_mechanical_interactions = true
+max_displacement = 3.0
+leaking_edges = true
+calculate_gradients = true
+
+[neuroscience]
+neurite_max_length = 5.0
+neurite_min_length = 1.0
+
+[visualization]
+export = true
+live = false
+export_interval = 1
+
+    [[visualize_sim_object]]
+    name = "Cell"
+
+    [[visualize_sim_object]]
+    name = "NeuronSoma"
+
+    [[visualize_sim_object]]
+    name = "NeuriteElement"
