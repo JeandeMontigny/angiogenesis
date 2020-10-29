@@ -1,6 +1,6 @@
 // -----------------------------------------------------------------------------
 //
-// Copyright (C) The BioDynaMo Project.
+// Copyright (C) The BioDynaMo Project and Jean de Montigny.
 // All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -27,7 +27,6 @@ inline int Simulate(int argc, const char** argv) {
     param->bound_space_ = true;
     param->min_bound_ = -100;
     param->max_bound_ = 250;
-    param->run_mechanical_interactions_ = true;
   };
   neuroscience::InitModule();
   Simulation simulation(argc, argv, set_param);
@@ -46,6 +45,7 @@ inline int Simulate(int argc, const char** argv) {
     vessel->ElongateTerminalEnd(100, {1, i*0.01, 0});
     vessel->RunDiscretization();
   }
+  std::cout << "initial condition set" << std::endl;
 
   // create cancerous cells
   auto* c_cell = new Cell({50, 150, 0});
@@ -55,7 +55,8 @@ inline int Simulate(int argc, const char** argv) {
   rm->push_back(c_cell);
 
   // Run simulation
-  simulation.GetScheduler()->Simulate(1);
+  std::cout << "simulating.." << std::endl;
+  simulation.GetScheduler()->Simulate(500);
 
   return 0;
 }

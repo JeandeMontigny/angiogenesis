@@ -1,6 +1,6 @@
 // -----------------------------------------------------------------------------
 //
-// Copyright (C) The BioDynaMo Project.
+// Copyright (C) The BioDynaMo Project and Jean de Montigny.
 // All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
