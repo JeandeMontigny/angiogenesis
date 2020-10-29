@@ -20,4 +20,4 @@ export_interval = 1
     name = "NeuronSoma"
 
     [[visualize_sim_object]]
-    name = "NeuriteElement"
+    name = "Vessel"
