@@ -18,6 +18,7 @@
 #include "biology_modules.h"
 #include "core/substance_initializers.h"
 #include "neuroscience/neuroscience.h"
+#include "extended_objects.h"
 
 namespace bdm {
 
@@ -35,10 +36,14 @@ inline int Simulate(int argc, const char** argv) {
   ModelInitializer::DefineSubstance(kVEGF, "VEGF", 0.5, 0, 50);
 
   auto* cell = new neuroscience::NeuronSoma({0,0,0});
-  cell->SetDiameter(2);
+  cell->SetDiameter(0.1);
   rm->push_back(cell);
-  auto vessel = cell->ExtendNewNeurite({1,0,0})->GetSoPtr<NeuriteElement>();
+  Vessel my_vessel;
+  auto* vessel = bdm_static_cast<Vessel*>(
+        cell->ExtendNewNeurite({1, 0, 0}, &my_vessel));
+  // auto* vessel = cell->ExtendNewNeurite({1,0,0})->GetSoPtr<Vessel>();
   vessel->SetDiameter(2);
+  vessel->SetCanBranch(true);
   vessel->AddBiologyModule(new VascularGrowth_BM());
   // elongate vessel to set up initial condition
   for (int i = 0; i < 300; i++) {
@@ -48,7 +53,7 @@ inline int Simulate(int argc, const char** argv) {
   std::cout << "initial condition set" << std::endl;
 
   // create cancerous cells
-  auto* c_cell = new Cell({50, 150, 0});
+  auto* c_cell = new Cell({70, 150, 0});
   c_cell->SetDiameter(10);
   c_cell->AddBiologyModule(new VegfSecretion_BM());
   c_cell->AddBiologyModule(new TumourGrowth_BM());
@@ -56,7 +61,7 @@ inline int Simulate(int argc, const char** argv) {
 
   // Run simulation
   std::cout << "simulating.." << std::endl;
-  simulation.GetScheduler()->Simulate(500);
+  simulation.GetScheduler()->Simulate(1000);
 
   return 0;
 }
