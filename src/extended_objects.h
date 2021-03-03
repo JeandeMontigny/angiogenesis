@@ -14,25 +14,22 @@
 #ifndef EXTENDED_OBJECTS_
 #define EXTENDED_OBJECTS_
 
-#include "core/sim_object/sim_object.h"
+#include "core/agent/agent.h"
 #include "neuroscience/neuroscience.h"
 
 namespace bdm {
 
 // Define custom neurite Vessel extending NeuriteElement
   class Vessel : public neuroscience::NeuriteElement {
-    BDM_SIM_OBJECT_HEADER(Vessel, neuroscience::NeuriteElement, 1);
+    BDM_AGENT_HEADER(Vessel, neuroscience::NeuriteElement, 1);
 
    public:
-    Vessel() : Base() {}
+    Vessel() {}
     virtual ~Vessel() {}
 
-    // Default event constructor
-    // copy can_branch_ member for all events
-    Vessel(const Event& event, SimObject* other, uint64_t new_oid = 0)
-      : Base(event, other, new_oid) {
-      can_branch_ = static_cast<Vessel*>(other)->can_branch_;
-  }
+    void Initialize(const NewAgentEvent& event) override {
+      Base::Initialize(event);
+    }
 
     void SetCanBranch(bool b) {can_branch_ = b; }
     bool CanBranch() { return can_branch_; }

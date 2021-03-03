@@ -14,9 +14,9 @@
 #ifndef BIOLOGY_MODULES_H_
 #define BIOLOGY_MODULES_H_
 
-#include "core/biology_module/biology_module.h"
-#include "core/diffusion_grid.h"
-#include "core/sim_object/cell.h"
+#include "core/behavior/behavior.h"
+#include "core/diffusion/diffusion_grid.h"
+#include "core/agent/cell.h"
 #include "neuroscience/neurite_element.h"
 #include "extended_objects.h"
 
@@ -26,26 +26,13 @@ enum Substances { kVEGF };
 
 // -----------------------------------------------------------------------------
 /// grow vascularity depending on chemical substance
-struct VascularGrowth_BM : public BaseBiologyModule {
-  VascularGrowth_BM() : BaseBiologyModule(gAllEventIds) {}
+struct VascularGrowth_BM : public Behavior {
+  BDM_BEHAVIOR_HEADER(VascularGrowth_BM, Behavior, 1);
 
-  /// Default event constructor
-  VascularGrowth_BM(const Event& event, BaseBiologyModule* other,
-                      uint64_t new_oid = 0)
-      : BaseBiologyModule(event, other, new_oid) {}
+  VascularGrowth_BM() { AlwaysCopyToNew(); }
+  virtual ~VascularGrowth_BM() {}
 
-  /// Create a new instance of this object using the default constructor.
-  BaseBiologyModule* GetInstance(const Event& event, BaseBiologyModule* other,
-                                 uint64_t new_oid = 0) const override {
-    return new VascularGrowth_BM(event, other, new_oid);
-  }
-
-  /// Create a copy of this biology module.
-  BaseBiologyModule* GetCopy() const override {
-    return new VascularGrowth_BM(*this);
-  }
-
-  void Run(SimObject* so) override {
+  void Run(Agent* so) override {
     // if initial condition not set
 
     auto* sim = Simulation::GetActive();
@@ -62,7 +49,7 @@ struct VascularGrowth_BM : public BaseBiologyModule {
 
     // remove biology module of main vessel terminal to avoid growth
     if (vessel->CanBranch() && vessel->IsTerminal()) {
-      vessel->RemoveBiologyModule(this);
+      vessel->RemoveBehavior(this);
     }
 
     // if part of the main vessel and concentraiton >
@@ -80,7 +67,7 @@ struct VascularGrowth_BM : public BaseBiologyModule {
         branch->ElongateTerminalEnd(50, gradient);
       }
       // if didn't branch, remove biology module, so won't do anything anymore
-      vessel->RemoveBiologyModule(this);
+      vessel->RemoveBehavior(this);
     } // end if part of main vessel and concentration >
 
     // if is an extension of the main vessel
@@ -96,7 +83,7 @@ struct VascularGrowth_BM : public BaseBiologyModule {
       if (vessel->IsTerminal() && concentration > 1e-2 && random->Uniform(0,1) < 1e-2 * concentration) {
         // stop elongating once it reached tumour
         if (concentration > 0.8) {
-          vessel->RemoveBiologyModule(this);
+          vessel->RemoveBehavior(this);
         }
         // get left daughter
         auto* branch_l = bdm_static_cast<Vessel*>(vessel->Bifurcate()[0]);
@@ -113,26 +100,13 @@ struct VascularGrowth_BM : public BaseBiologyModule {
 
 // -----------------------------------------------------------------------------
 /// Secrete substance at SimObject position
-struct VegfSecretion_BM : public BaseBiologyModule {
-  VegfSecretion_BM() : BaseBiologyModule(gAllEventIds) {}
+struct VegfSecretion_BM : public Behavior {
+  BDM_BEHAVIOR_HEADER(VegfSecretion_BM, Behavior, 1);
 
-  /// Default event constructor
-  VegfSecretion_BM(const Event& event, BaseBiologyModule* other,
-                      uint64_t new_oid = 0)
-      : BaseBiologyModule(event, other, new_oid) {}
+  VegfSecretion_BM() { AlwaysCopyToNew(); }
+  virtual ~VegfSecretion_BM() {}
 
-  /// Create a new instance of this object using the default constructor.
-  BaseBiologyModule* GetInstance(const Event& event, BaseBiologyModule* other,
-                                 uint64_t new_oid = 0) const override {
-    return new VegfSecretion_BM(event, other, new_oid);
-  }
-
-  /// Create a copy of this biology module.
-  BaseBiologyModule* GetCopy() const override {
-    return new VegfSecretion_BM(*this);
-  }
-
-  void Run(SimObject* so) override {
+  void Run(Agent* so) override {
     auto* sim = Simulation::GetActive();
     auto* rm = sim->GetResourceManager();
 
@@ -146,7 +120,7 @@ struct VegfSecretion_BM : public BaseBiologyModule {
     Double3 cell_pos = cell->GetPosition();
     bool vessel_at_vicinity = false;
     // check if vessels at vicinity (dist < 4)
-    rm->ApplyOnAllElements([&](SimObject* so) {
+    rm->ForEachAgent([&](Agent* so) {
       if (auto* vessel = dynamic_cast<Vessel*>(so)) {
         Double3 vessel_pos = vessel->GetPosition();
         // note: square distance
@@ -160,7 +134,7 @@ struct VegfSecretion_BM : public BaseBiologyModule {
 
     // diffuse vegf only if no vessels at vicinity
     if (!vessel_at_vicinity) {
-      dg_vegf_->IncreaseConcentrationBy(cell_pos, 1);
+      dg_vegf_->ChangeConcentrationBy(cell_pos, 1);
     }
   }
 
@@ -170,26 +144,13 @@ struct VegfSecretion_BM : public BaseBiologyModule {
 }; // end VegfSecretion_BM
 
 // -----------------------------------------------------------------------------
-struct TumourGrowth_BM : public BaseBiologyModule {
-  TumourGrowth_BM() : BaseBiologyModule(gAllEventIds) {}
+struct TumourGrowth_BM : public Behavior {
+  BDM_BEHAVIOR_HEADER(TumourGrowth_BM, Behavior, 1);
 
-  /// Default event constructor
-  TumourGrowth_BM(const Event& event, BaseBiologyModule* other,
-                      uint64_t new_oid = 0)
-      : BaseBiologyModule(event, other, new_oid) {}
+  TumourGrowth_BM() { AlwaysCopyToNew(); }
+  virtual ~TumourGrowth_BM() {}
 
-  /// Create a new instance of this object using the default constructor.
-  BaseBiologyModule* GetInstance(const Event& event, BaseBiologyModule* other,
-                                 uint64_t new_oid = 0) const override {
-    return new TumourGrowth_BM(event, other, new_oid);
-  }
-
-  /// Create a copy of this biology module.
-  BaseBiologyModule* GetCopy() const override {
-    return new TumourGrowth_BM(*this);
-  }
-
-  void Run(SimObject* so) override {
+  void Run(Agent* so) override {
     if (Cell* cell = dynamic_cast<Cell*>(so)) {
       if (cell->GetDiameter() <= 12) {
         cell->ChangeVolume(200);
