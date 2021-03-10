@@ -41,7 +41,6 @@ inline int Simulate(int argc, const char** argv) {
   Vessel my_vessel;
   auto* vessel = bdm_static_cast<Vessel*>(
         cell->ExtendNewNeurite({1, 0, 0}, &my_vessel));
-  // auto* vessel = cell->ExtendNewNeurite({1,0,0})->GetSoPtr<Vessel>();
   vessel->SetDiameter(2);
   vessel->SetCanBranch(true);
   vessel->AddBehavior(new VascularGrowth_BM());
