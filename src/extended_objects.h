@@ -24,11 +24,14 @@ namespace bdm {
     BDM_AGENT_HEADER(Vessel, neuroscience::NeuriteElement, 1);
 
    public:
-    Vessel() {}
+    Vessel() : Base() {}
     virtual ~Vessel() {}
 
     void Initialize(const NewAgentEvent& event) override {
       Base::Initialize(event);
+      if (auto* mother = dynamic_cast<Vessel*>(event.existing_agent)) {
+        can_branch_ = mother->can_branch_;
+      }
     }
 
     void SetCanBranch(bool b) {can_branch_ = b; }
